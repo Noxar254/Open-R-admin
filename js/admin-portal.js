@@ -697,29 +697,32 @@ class AdminPortal {
       }
     });
   }
-
   async syncWithWebsite() {
     try {
       const syncBtn = document.getElementById('sync-website');
       syncBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
       syncBtn.disabled = true;
 
-      // Force refresh data
-      await this.loadDashboardData();
+      // Use the new website sync manager
+      const result = await websiteSync.syncToWebsite();
       
-      // Update sync time
-      const syncTime = new Date().toISOString();
-      localStorage.setItem('lastSyncTime', syncTime);
+      if (result.success) {
+        // Force refresh data
+        await this.loadDashboardData();
+      }
 
       // Reset button
       syncBtn.innerHTML = '<i class="fas fa-sync"></i> Sync Website';
       syncBtn.disabled = false;
-
-      AdminFirebaseManager.showNotification('Website synced successfully!', 'success');
       
     } catch (error) {
       console.error('Error syncing website:', error);
       AdminFirebaseManager.showNotification('Sync failed. Please try again.', 'error');
+      
+      // Reset button on error
+      const syncBtn = document.getElementById('sync-website');
+      syncBtn.innerHTML = '<i class="fas fa-sync"></i> Sync Website';
+      syncBtn.disabled = false;
     }
   }
 

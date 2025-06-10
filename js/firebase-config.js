@@ -356,6 +356,27 @@ const AdminFirebaseManager = {
       return [];
     }
   },
+
+  async getAllEnquiries() {
+    try {
+      const snapshot = await adminDb.collection('enquiries')
+        .orderBy('timestamp', 'desc')
+        .get();
+      
+      const enquiries = [];
+      snapshot.forEach((doc) => {
+        enquiries.push({ id: doc.id, ...doc.data() });
+      });
+      
+      console.log(`📧 Retrieved ${enquiries.length} enquiries`);
+      return enquiries;
+      
+    } catch (error) {
+      console.error("❌ Error getting enquiries:", error);
+      return [];
+    }
+  },
+
   // Real-time Enquiry Listener
   listenToEnquiries(callback) {
     console.log("👂 Setting up real-time enquiry listener...");

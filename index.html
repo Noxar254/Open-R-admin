@@ -373,13 +373,21 @@
                                     <small>Use Ctrl+Shift+T to quickly toggle themes</small>
                                 </p>
                             </div>
-                        </div>
-                        <div class="settings-section">
+                        </div>                        <div class="settings-section">
                             <h3>Website Sync</h3>
                             <p>Last sync: <span id="last-sync-time">Never</span></p>
-                            <button class="btn btn-primary" onclick="adminPortal.forceSync()">
-                                Force Sync Now
-                            </button>
+                            <div class="sync-options">
+                                <button class="btn btn-primary" onclick="adminPortal.forceSync()">
+                                    <i class="fas fa-sync"></i> Sync Website Data
+                                </button>
+                                <button class="btn btn-secondary" onclick="websiteSync.generateIntegrationPackage()">
+                                    <i class="fas fa-download"></i> Download Integration Files
+                                </button>
+                            </div>
+                            <small style="color: #666; margin-top: 10px; display: block;">
+                                Use "Sync Website Data" to generate updated data files for your website.
+                                Use "Download Integration Files" to get the complete package for website integration.
+                            </small>
                         </div>
                         <div class="settings-section">
                             <h3>Data Management</h3>
@@ -573,9 +581,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
-    
-    <!-- Admin Scripts -->
+      <!-- Admin Scripts -->
     <script src="js/firebase-config.js"></script>
+    <script src="js/website-sync.js"></script>
     <script src="js/admin-portal.js"></script>
     <script src="js/vehicle-manager.js"></script>
     <script src="js/property-manager.js"></script>
