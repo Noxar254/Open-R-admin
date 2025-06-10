@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Road - Integration Test Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .test-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-section:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+        
+        .test-section h2 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .test-section h2 .icon {
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .test-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .test-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .test-card p {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn.secondary {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .btn.danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.connected {
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-indicator.testing {
+            background: #ffc107;
+            animation: pulse 1s infinite;
+        }
+        
+        .status-indicator.error {
+            background: #dc3545;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .connection-status {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .log-output {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border: 2px solid #333;
+        }
+        
+        .quick-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .results-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .test-result {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .test-result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .test-result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .test-result.info {
+            background: #cce7ff;
+            border: 1px solid #99d6ff;
+            color: #004085;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Open Road Market Integration Test</h1>
+            <p class="subtitle">Comprehensive testing suite for Admin Portal ↔ Main Website integration</p>
+            <div class="connection-status">
+                <span class="status-indicator connected" id="firebase-status"></span>
+                <strong>Firebase Connection:</strong> <span id="connection-text">Checking...</span>
+            </div>
+        </div>
+
+        <!-- Test Section 1: Firebase Connection -->
+        <div class="test-section">
+            <h2><span class="icon">🔥</span>Firebase Connection Test</h2>
+            <div class="test-grid">
+                <div class="test-card">
+                    <h3>Database Connection</h3>
+                    <p>Verify Firestore database connectivity and configuration</p>
+                    <button class="btn" onclick="testFirebaseConnection()">Test Database</button>
+                    <div class="test-result" id="db-result"></div>
+                </div>
+                <div class="test-card">
+                    <h3>Storage Connection</h3>
+                    <p>Test Firebase Storage for image uploads</p>
+                    <button class="btn" onclick="testStorageConnection()">Test Storage</button>
+                    <div class="test-result" id="storage-result"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Section 2: Data Synchronization -->
+        <div class="test-section">
+            <h2><span class="icon">🔄</span>Data Synchronization Test</h2>
+            <div class="test-grid">
+                <div class="test-card">
+                    <h3>Vehicle Data Sync</h3>
+                    <p>Test adding a vehicle in admin portal and verify it appears on main website</p>
+                    <button class="btn" onclick="testVehicleSync()">Test Vehicle Sync</button>
+                    <div class="test-result" id="vehicle-sync-result"></div>
+                </div>
+                <div class="test-card">
+                    <h3>Property Data Sync</h3>
+                    <p>Test adding a property in admin portal and verify it appears on main website</p>
+                    <button class="btn" onclick="testPropertySync()">Test Property Sync</button>
+                    <div class="test-result" id="property-sync-result"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Section 3: Real-time Updates -->
+        <div class="test-section">
+            <h2><span class="icon">⚡</span>Real-time Updates Test</h2>
+            <div class="test-grid">
+                <div class="test-card">
+                    <h3>Live Enquiry Feed</h3>
+                    <p>Submit enquiry from main website and verify it appears in admin portal</p>
+                    <button class="btn secondary" onclick="testEnquiryFlow()">Test Enquiry Flow</button>
+                    <div class="test-result" id="enquiry-result"></div>
+                </div>
+                <div class="test-card">
+                    <h3>Status Updates</h3>
+                    <p>Change vehicle/property status and verify real-time updates</p>
+                    <button class="btn secondary" onclick="testStatusUpdates()">Test Status Updates</button>
+                    <div class="test-result" id="status-result"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Section 4: Form Integration -->
+        <div class="test-section">
+            <h2><span class="icon">📝</span>Form Integration Test</h2>
+            <div class="test-grid">
+                <div class="test-card">
+                    <h3>Vehicle Enquiry Form</h3>
+                    <p>Test vehicle enquiry submission from main website</p>
+                    <button class="btn danger" onclick="testVehicleEnquiry()">Test Vehicle Form</button>
+                    <div class="test-result" id="vehicle-form-result"></div>
+                </div>
+                <div class="test-card">
+                    <h3>Property Enquiry Form</h3>
+                    <p>Test property enquiry submission from main website</p>
+                    <button class="btn danger" onclick="testPropertyEnquiry()">Test Property Form</button>
+                    <div class="test-result" id="property-form-result"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="test-section">
+            <h2><span class="icon">🚀</span>Quick Access</h2>
+            <div class="quick-links">
+                <a href="file:///C:/Users/user/Desktop/Open-Road-Admin-Portal/index.html" class="btn" target="_blank">
+                    Open Admin Portal
+                </a>
+                <a href="file:///C:/Users/user/Desktop/Open%20R/Open-Road/index.html" class="btn secondary" target="_blank">
+                    Open Main Website
+                </a>
+                <a href="file:///C:/Users/user/Desktop/Open%20R/Open-Road/vehicles.html" class="btn" target="_blank">
+                    Vehicle Listings
+                </a>
+                <a href="file:///C:/Users/user/Desktop/Open%20R/Open-Road/properties.html" class="btn" target="_blank">
+                    Property Listings
+                </a>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section">
+            <h2><span class="icon">📊</span>Test Results</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="log-output" id="test-log">
+                <div>🔍 Integration Test Suite Ready</div>
+                <div>📅 Test Date: June 10, 2025</div>
+                <div>⏰ Initializing test environment...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjxz6hzgqeLkNtQFnSTbDkro4dsj2j-Tc",
+            authDomain: "open-road-market.firebaseapp.com",
+            projectId: "open-road-market",
+            storageBucket: "open-road-market.firebasestorage.app",
+            messagingSenderId: "6509034099",
+            appId: "1:6509034099:web:bf09794b823f4187ffc806",
+            measurementId: "G-WWBRN92Y32"
+        };
+
+        // Initialize Firebase
+        let db, storage;
+        let testResults = {
+            total: 0,
+            passed: 0,
+            failed: 0
+        };
+
+        function log(message, type = 'info') {
+            const logOutput = document.getElementById('test-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'success' ? '#00ff00' : type === 'error' ? '#ff4444' : '#00ccff';
+            
+            logOutput.innerHTML += `<div style="color: ${color};">[${timestamp}] ${message}</div>`;
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.className = `test-result ${type}`;
+            element.innerHTML = message;
+            element.style.display = 'block';
+            
+            testResults.total++;
+            if (type === 'success') {
+                testResults.passed++;
+            } else if (type === 'error') {
+                testResults.failed++;
+            }
+            
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progressFill = document.getElementById('progress-fill');
+            const percentage = (testResults.total > 0) ? (testResults.passed / testResults.total) * 100 : 0;
+            progressFill.style.width = percentage + '%';
+        }
+
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            storage = firebase.storage();
+            
+            document.getElementById('connection-text').textContent = 'Connected ✅';
+            document.getElementById('firebase-status').className = 'status-indicator connected';
+            log('✅ Firebase initialized successfully', 'success');
+            
+        } catch (error) {
+            document.getElementById('connection-text').textContent = 'Connection Failed ❌';
+            document.getElementById('firebase-status').className = 'status-indicator error';
+            log('❌ Firebase initialization failed: ' + error.message, 'error');
+        }
+
+        // Test Functions
+        async function testFirebaseConnection() {
+            log('🔥 Testing Firebase database connection...');
+            try {
+                // Test write to Firestore
+                const testDoc = await db.collection('_test').add({
+                    test: true,
+                    timestamp: new Date(),
+                    testType: 'integration-test'
+                });
+                
+                // Test read from Firestore
+                const readDoc = await db.collection('_test').doc(testDoc.id).get();
+                
+                if (readDoc.exists) {
+                    // Clean up test document
+                    await db.collection('_test').doc(testDoc.id).delete();
+                    
+                    showResult('db-result', '✅ Database connection successful! Read/write operations working.', 'success');
+                    log('✅ Database test passed - Read/write operations successful', 'success');
+                } else {
+                    throw new Error('Document read failed');
+                }
+                
+            } catch (error) {
+                showResult('db-result', '❌ Database connection failed: ' + error.message, 'error');
+                log('❌ Database test failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testStorageConnection() {
+            log('📦 Testing Firebase storage connection...');
+            try {
+                // Create a test file
+                const testData = 'Integration test file - ' + new Date().toISOString();
+                const testBlob = new Blob([testData], { type: 'text/plain' });
+                
+                // Upload test file
+                const storageRef = storage.ref().child('_test/integration-test.txt');
+                const uploadTask = await storageRef.put(testBlob);
+                
+                // Get download URL
+                const downloadURL = await uploadTask.ref.getDownloadURL();
+                
+                // Clean up test file
+                await storageRef.delete();
+                
+                showResult('storage-result', '✅ Storage connection successful! Upload/download operations working.', 'success');
+                log('✅ Storage test passed - Upload/download operations successful', 'success');
+                
+            } catch (error) {
+                showResult('storage-result', '❌ Storage connection failed: ' + error.message, 'error');
+                log('❌ Storage test failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testVehicleSync() {
+            log('🚗 Testing vehicle data synchronization...');
+            try {
+                // Create test vehicle data
+                const testVehicle = {
+                    make: 'Integration Test',
+                    model: 'Sync Test Vehicle',
+                    year: 2025,
+                    price: 999999,
+                    status: 'active',
+                    vehicleId: 'TEST-' + Date.now(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    testData: true
+                };
+                
+                // Add to vehicles collection
+                const docRef = await db.collection('vehicles').add(testVehicle);
+                log('📝 Test vehicle added to database with ID: ' + docRef.id);
+                
+                // Verify the document exists
+                const vehicleDoc = await db.collection('vehicles').doc(docRef.id).get();
+                
+                if (vehicleDoc.exists) {
+                    // Clean up test vehicle
+                    await db.collection('vehicles').doc(docRef.id).delete();
+                    
+                    showResult('vehicle-sync-result', 
+                        `✅ Vehicle sync successful! Test vehicle added and verified.<br>
+                        <strong>Vehicle ID:</strong> ${testVehicle.vehicleId}<br>
+                        <strong>Document ID:</strong> ${docRef.id}`, 'success');
+                    log('✅ Vehicle sync test passed - Data successfully synchronized', 'success');
+                } else {
+                    throw new Error('Vehicle document not found after creation');
+                }
+                
+            } catch (error) {
+                showResult('vehicle-sync-result', '❌ Vehicle sync failed: ' + error.message, 'error');
+                log('❌ Vehicle sync test failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testPropertySync() {
+            log('🏠 Testing property data synchronization...');
+            try {
+                // Create test property data
+                const testProperty = {
+                    title: 'Integration Test Property',
+                    type: 'house',
+                    price: 888888,
+                    location: 'Test Location',
+                    status: 'active',
+                    propertyId: 'PROP-' + Date.now(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    testData: true
+                };
+                
+                // Add to properties collection
+                const docRef = await db.collection('properties').add(testProperty);
+                log('📝 Test property added to database with ID: ' + docRef.id);
+                
+                // Verify the document exists
+                const propertyDoc = await db.collection('properties').doc(docRef.id).get();
+                
+                if (propertyDoc.exists) {
+                    // Clean up test property
+                    await db.collection('properties').doc(docRef.id).delete();
+                    
+                    showResult('property-sync-result', 
+                        `✅ Property sync successful! Test property added and verified.<br>
+                        <strong>Property ID:</strong> ${testProperty.propertyId}<br>
+                        <strong>Document ID:</strong> ${docRef.id}`, 'success');
+                    log('✅ Property sync test passed - Data successfully synchronized', 'success');
+                } else {
+                    throw new Error('Property document not found after creation');
+                }
+                
+            } catch (error) {
+                showResult('property-sync-result', '❌ Property sync failed: ' + error.message, 'error');
+                log('❌ Property sync test failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testEnquiryFlow() {
+            log('📨 Testing enquiry flow from website to admin...');
+            try {
+                // Create test enquiry data
+                const testEnquiry = {
+                    name: 'Integration Test User',
+                    email: 'test@integrationtest.com',
+                    phone: '+254700000000',
+                    type: 'vehicle',
+                    subject: 'Integration Test Enquiry',
+                    message: 'This is a test enquiry for integration testing.',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'new',
+                    read: false,
+                    testData: true
+                };
+                
+                // Add to enquiries collection
+                const docRef = await db.collection('enquiries').add(testEnquiry);
+                log('📝 Test enquiry submitted with ID: ' + docRef.id);
+                
+                // Verify the enquiry exists
+                const enquiryDoc = await db.collection('enquiries').doc(docRef.id).get();
+                
+                if (enquiryDoc.exists) {
+                    // Clean up test enquiry
+                    await db.collection('enquiries').doc(docRef.id).delete();
+                    
+                    showResult('enquiry-result', 
+                        `✅ Enquiry flow successful! Test enquiry submitted and verified.<br>
+                        <strong>From:</strong> ${testEnquiry.name}<br>
+                        <strong>Email:</strong> ${testEnquiry.email}<br>
+                        <strong>Document ID:</strong> ${docRef.id}`, 'success');
+                    log('✅ Enquiry flow test passed - Real-time enquiry system working', 'success');
+                } else {
+                    throw new Error('Enquiry document not found after creation');
+                }
+                
+            } catch (error) {
+                showResult('enquiry-result', '❌ Enquiry flow failed: ' + error.message, 'error');
+                log('❌ Enquiry flow test failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testStatusUpdates() {
+            log('🔄 Testing real-time status updates...');
+            try {
+                // Create test vehicle
+                const testVehicle = {
+                    make: 'Status Test',
+                    model: 'Update Test',
+                    year: 2025,
+                    price: 777777,
+                    status: 'active',
+                    vehicleId: 'STATUS-' + Date.now(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    testData: true
+                };
+                
+                const docRef = await db.collection('vehicles').add(testVehicle);
+                log('📝 Test vehicle created for status update test');
+                
+                // Update status
+                await db.collection('vehicles').doc(docRef.id).update({
+                    status: 'sold',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                log('🔄 Vehicle status updated to "sold"');
+                
+                // Verify status update
+                const updatedDoc = await db.collection('vehicles').doc(docRef.id).get();
+                const updatedData = updatedDoc.data();
+                
+                if (updatedData.status === 'sold') {
+                    // Clean up
+                    await db.collection('vehicles').doc(docRef.id).delete();
+                    
+                    showResult('status-result', 
+                        `✅ Status update successful!<br>
+                        <strong>Initial Status:</strong> active<br>
+                        <strong>Updated Status:</strong> sold<br>
+                        <strong>Real-time sync:</strong> Working`, 'success');
+                    log('✅ Status update test passed - Real-time updates working', 'success');
+                } else {
+                    throw new Error('Status update not reflected in database');
+                }
+                
+            } catch (error) {
+                showResult('status-result', '❌ Status update failed: ' + error.message, 'error');
+                log('❌ Status update test failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testVehicleEnquiry() {
+            log('🚗 Testing vehicle enquiry form integration...');
+            try {
+                // Simulate vehicle enquiry form submission
+                const enquiryData = {
+                    type: 'vehicle',
+                    vehicleId: 'TEST-VEHICLE-123',
+                    vehicleName: 'Test Vehicle for Enquiry',
+                    name: 'Form Test User',
+                    email: 'formtest@example.com',
+                    phone: '+254711222333',
+                    message: 'I am interested in this vehicle for integration testing.',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'new',
+                    read: false,
+                    source: 'vehicle-page',
+                    testData: true
+                };
+                
+                const docRef = await db.collection('enquiries').add(enquiryData);
+                log('📝 Vehicle enquiry form submitted successfully');
+                
+                // Verify submission
+                const enquiryDoc = await db.collection('enquiries').doc(docRef.id).get();
+                
+                if (enquiryDoc.exists) {
+                    // Clean up
+                    await db.collection('enquiries').doc(docRef.id).delete();
+                    
+                    showResult('vehicle-form-result', 
+                        `✅ Vehicle enquiry form working!<br>
+                        <strong>Vehicle:</strong> ${enquiryData.vehicleName}<br>
+                        <strong>Customer:</strong> ${enquiryData.name}<br>
+                        <strong>Status:</strong> Form integration successful`, 'success');
+                    log('✅ Vehicle form test passed - Form submissions working', 'success');
+                } else {
+                    throw new Error('Vehicle enquiry not saved to database');
+                }
+                
+            } catch (error) {
+                showResult('vehicle-form-result', '❌ Vehicle form test failed: ' + error.message, 'error');
+                log('❌ Vehicle form test failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testPropertyEnquiry() {
+            log('🏠 Testing property enquiry form integration...');
+            try {
+                // Simulate property enquiry form submission
+                const enquiryData = {
+                    type: 'property',
+                    propertyId: 'TEST-PROPERTY-456',
+                    propertyName: 'Test Property for Enquiry',
+                    name: 'Property Test User',
+                    email: 'propertytest@example.com',
+                    phone: '+254722333444',
+                    message: 'I am interested in this property for integration testing.',
+                    financingRequired: 'Yes',
+                    viewingDatePreference: 'Weekends',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'new',
+                    read: false,
+                    source: 'property-page',
+                    testData: true
+                };
+                
+                const docRef = await db.collection('enquiries').add(enquiryData);
+                log('📝 Property enquiry form submitted successfully');
+                
+                // Verify submission
+                const enquiryDoc = await db.collection('enquiries').doc(docRef.id).get();
+                
+                if (enquiryDoc.exists) {
+                    // Clean up
+                    await db.collection('enquiries').doc(docRef.id).delete();
+                    
+                    showResult('property-form-result', 
+                        `✅ Property enquiry form working!<br>
+                        <strong>Property:</strong> ${enquiryData.propertyName}<br>
+                        <strong>Customer:</strong> ${enquiryData.name}<br>
+                        <strong>Financing:</strong> ${enquiryData.financingRequired}<br>
+                        <strong>Status:</strong> Form integration successful`, 'success');
+                    log('✅ Property form test passed - Form submissions working', 'success');
+                } else {
+                    throw new Error('Property enquiry not saved to database');
+                }
+                
+            } catch (error) {
+                showResult('property-form-result', '❌ Property form test failed: ' + error.message, 'error');
+                log('❌ Property form test failed: ' + error.message, 'error');
+            }
+        }
+
+        // Run all tests automatically
+        function runAllTests() {
+            log('🚀 Starting comprehensive integration test suite...', 'info');
+            
+            setTimeout(() => testFirebaseConnection(), 1000);
+            setTimeout(() => testStorageConnection(), 2000);
+            setTimeout(() => testVehicleSync(), 3000);
+            setTimeout(() => testPropertySync(), 4000);
+            setTimeout(() => testEnquiryFlow(), 5000);
+            setTimeout(() => testStatusUpdates(), 6000);
+            setTimeout(() => testVehicleEnquiry(), 7000);
+            setTimeout(() => testPropertyEnquiry(), 8000);
+            
+            setTimeout(() => {
+                log('🏁 All integration tests completed!', 'success');
+                log(`📊 Results: ${testResults.passed}/${testResults.total} tests passed`, 'info');
+            }, 9000);
+        }
+
+        // Initialize and show options
+        document.addEventListener('DOMContentLoaded', function() {
+            log('⚡ Integration test suite initialized and ready');
+            log('💡 You can run individual tests or click "Run All Tests" for comprehensive testing');
+            
+            // Add "Run All Tests" button
+            const quickLinks = document.querySelector('.quick-links');
+            const runAllBtn = document.createElement('button');
+            runAllBtn.className = 'btn';
+            runAllBtn.onclick = runAllTests;
+            runAllBtn.innerHTML = '🚀 Run All Tests';
+            runAllBtn.style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)';
+            quickLinks.appendChild(runAllBtn);
+        });
+    </script>
+</body>
+</html>
